@@ -1,0 +1,35 @@
+#!/bin/bash
+
+REGEX1="#[0-9]*"
+REGEX2="Merge branch"
+
+ERROR_MSG="
+
+              =================================================================
+              ██████╗ ███████╗     ██╗███████╗ ██████╗████████╗███████╗██████╗  
+              ██╔══██╗██╔════╝     ██║██╔════╝██╔════╝╚══██╔══╝██╔════╝██╔══██╗ 
+              ██████╔╝█████╗       ██║█████╗  ██║        ██║   █████╗  ██║  ██║ 
+              ██╔══██╗██╔══╝  ██   ██║██╔══╝  ██║        ██║   ██╔══╝  ██║  ██║ 
+              ██║  ██║███████╗╚█████╔╝███████╗╚██████╗   ██║   ███████╗██████╔╝ 
+              ╚═╝  ╚═╝╚══════╝ ╚════╝ ╚══════╝ ╚═════╝   ╚═╝   ╚══════╝╚═════╝  
+              ================================================================= 
+              
+             
+               We are very very sorry but your change seems to violate our policies!
+                And hence Sud will not allow anyone to push your changes unless you provide 
+                Open Project ID Number in your commit message
+               Please check with your nearest Guru! :) ERROR_ID: 001        
+              ================================================================= "
+
+while read OLDREV NEWREV REFNAME ; do
+  for COMMIT in `git rev-list $OLDREV..$NEWREV --no-merge`;
+  do
+    MESSAGE=`git cat-file commit $COMMIT | sed '1,/^$/d'`
+    if ! echo $MESSAGE | grep -iqE "$REGEX1\|$REGEX2"; then
+      echo "$ERROR_MSG: $MESSAGE" >&2
+      exit 1
+    fi
+  done
+done
+exit 0
+
